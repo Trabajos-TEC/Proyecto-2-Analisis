@@ -1,0 +1,22 @@
+.graph-container {
+  width: 80vw;        /* se adapta al ancho de la pantalla */
+  height: 80vh;       /* se adapta al alto de la pantalla */
+
+  border: 2px solid #888;
+  overflow: auto;     /* mantiene los scrolls */
+  background-color: #fdfdfd;
+
+  margin-top: 75px;
+  margin-right: 250px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+canvas {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: block;
+}

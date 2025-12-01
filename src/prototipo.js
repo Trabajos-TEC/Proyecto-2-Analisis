@@ -4,6 +4,7 @@ class Nodo {
     this.valor = valor;
     this.vecinos = []; // lista de nodos conectados
     this.color = "";
+    this.recolorear = false;
   }
 }
 
@@ -15,10 +16,21 @@ class Grafo {
     this.listaColores = [];
     this.largo = 0
     this.completo = false;
+    this.conflictos = 0;
+
   }
 
   asignarK(n){
     this.k = n;
+  }
+
+  asignarColoresAleatoriamente(){
+    for (let i = 0; i < this.nodos.length ; i++){
+      let nodo = this.nodos[i]
+      if (!nodo.recolorear){
+        nodo.color = this.listaColores[random(0,this.listaColores.length - 1)]
+      }
+    }
   }
 
   agregarNodo(valor) {
@@ -53,6 +65,33 @@ class Grafo {
   verificarCompleto(){
   }
 
+  
+  contarConflictos() {
+    this.conflictos = 0;
+    let setConflictos = new Set();
+
+    for (let i = 0; i < this.nodos.length; i++) {
+      let nodo = this.nodos[i];
+
+      for (let j = 0; j < nodo.vecinos.length; j++) {
+        let vecino = nodo.vecinos[j];
+
+        if (nodo.color === vecino.color) {
+          
+          let key = [nodo.valor, vecino.valor].sort().join("-");
+
+          if (!setConflictos.has(key)) {
+            setConflictos.add(key);
+            this.conflictos += 1;
+          }
+        }
+      }
+    }
+
+    return this.conflictos;
+  }
+
+
   verificarColoreo(){
     for (let i = 0; i < this.nodos.length; i++){
       let nodoSeleccionado = this.nodos[i];
@@ -86,6 +125,25 @@ function verificarExistenciaArista(nodo1,nodo2,lista){
   return false;
 }
 
+
+
+export function crearGrafoManual(cantidadNodos,kColores,){
+  const grafo = new Grafo();
+  // Creamos las instancias de nodos
+  for (let i = 1; i < cantidadNodos + 1; i++){
+    grafo.agregarNodo(i);
+  }
+  // Generamos los colores
+  grafo.asignarK(kColores);
+  grafo.agregarColores();
+
+
+  console.log("Grafo creado con exito!")
+
+  return grafo;
+}
+
+
 export function crearGrafoAleatorio(cantidadNodos,kColores,){
   const grafo = new Grafo();
   // Creamos las instancias de nodos
@@ -99,60 +157,69 @@ export function crearGrafoAleatorio(cantidadNodos,kColores,){
   // Creamos las conneciones entre nodos (aristas)
   let listaConexiones = []
 
-  while (grafo.verificarAislado()){ // Mientras que exista un nodo aislado en el grafo ...
-    let nodo1 = grafo.nodos[random(0,grafo.largo - 1)]
-    let nodo2 = grafo.nodos[random(0,grafo.largo - 1)]
+  while (grafo.verificarAislado()){
+    for(let i = 0; i < grafo.nodos.length ; i++){
+      let nodo1 = grafo.nodos[i]
+      let nodo2 = grafo.nodos[random(0,grafo.largo - 1)]
 
-    // Validamos que los nodos escogidos no sean los mismos
-    // Validamos que no exista ya una conexion entre esos mismos dos nodos.
-    if (nodo1 != nodo2 && verificarExistenciaArista(nodo1,nodo2,listaConexiones) === false){
-      grafo.agregarArista(nodo1,nodo2);
-      let conexion = [nodo1,nodo2]
-      listaConexiones.push(conexion)
-    }
+      // Validamos que los nodos escogidos no sean los mismos
+      // Validamos que no exista ya una conexion entre esos mismos dos nodos.
+      if (nodo1 != nodo2 && verificarExistenciaArista(nodo1,nodo2,listaConexiones) === false){
+   
+          grafo.agregarArista(nodo1,nodo2);
+          let conexion = [nodo1,nodo2]
+          listaConexiones.push(conexion)
+      }
 
+    } 
   }
   console.log("Grafo creado con exito!")
 
   return grafo;
 }
 
+export function crearCopiaGrafo(grafo) {
+    let copia = new Grafo();
 
+    copia.largo = grafo.largo;
+    copia.completo = grafo.completo;
+    copia.k = grafo.k;
 
+    copia.listaColores = [];
+    for (let i = 0; i < grafo.listaColores.length; i++) {
+        copia.listaColores[i] = grafo.listaColores[i];
+    }
 
-// ==================== PRUEBAS ====================
+    copia.nodos = [];
+    for (let i = 0; i < grafo.nodos.length; i++) {
+        let nodoOriginal = grafo.nodos[i];
 
-// Crear un grafo manualmente
-const g = new Grafo();
-const n1 = g.agregarNodo("A");
-const n2 = g.agregarNodo("B");
-const n3 = g.agregarNodo("C");
+        let nodoNuevo = new Nodo(nodoOriginal.valor);
+        nodoNuevo.color = nodoOriginal.color;
 
-// Crear aristas
-g.agregarArista(n1, n2);
-g.agregarArista(n2, n3);
-g.agregarArista(n1, n3);
+        copia.nodos[i] = nodoNuevo;
+    }
 
-// Asignar colores distintos (sin conflicto)
-n1.color = "rojo";
-n2.color = "verde";
-n3.color = "azul";
+    for (let i = 0; i < grafo.nodos.length; i++) {
+        let nodoOriginal = grafo.nodos[i];
+        let nodoCopia = copia.nodos[i];
 
-console.log(" Caso 1 (sin conflicto):", g.verificarColoreo()); //  debería imprimir true
+        nodoCopia.vecinos = [];
 
-// Crear conflicto: dos vecinos con el mismo color
-n2.color = "rojo";
+        for (let j = 0; j < nodoOriginal.vecinos.length; j++) {
+            let vecinoOriginal = nodoOriginal.vecinos[j];
 
-console.log(" Caso 2 git (con conflicto):", g.verificarColoreo()); //  debería imprimir false
-// ==================== PRUEBA ALEATORIA ====================
+            let indexVecino = -1;
+            for (let k = 0; k < grafo.nodos.length; k++) {
+                if (grafo.nodos[k] === vecinoOriginal) {
+                    indexVecino = k;
+                    break;
+                }
+            }
 
-const grafoAleatorio = crearGrafoAleatorio(5, 5);
-grafoAleatorio.nodos.forEach(nodo => {
-  nodo.color = grafoAleatorio.listaColores[random(0, grafoAleatorio.k - 1)];
-});
-
-console.log("\n Caso 3 (aleatorio):");
-grafoAleatorio.nodos.forEach(n => {
-  console.log(`Nodo ${n.valor} -> color: ${n.color}, vecinos: [${n.vecinos.map(v => v.valor).join(", ")}]`);
-});
-console.log("¿Coloreo válido?", grafoAleatorio.verificarColoreo());
+            nodoCopia.vecinos[j] = copia.nodos[indexVecino];
+        }
+    }
+    copia.contarConflictos();
+    return copia;
+}
