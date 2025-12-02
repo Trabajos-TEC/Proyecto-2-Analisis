@@ -7,8 +7,10 @@ import "./EvaluacionK.css";
  * Componente para evaluar el impacto del número de colores (k) en el grafo actual
  */
 export default function EvaluacionK({ grafo }) {
-  const [kMin, setKMin] = useState(3);
-  const [kMax, setKMax] = useState(7);
+  // Inicializar valores basados en el k actual del grafo
+  const kActual = grafo ? grafo.k : 5;
+  const [kMin, setKMin] = useState(Math.max(3, kActual - 2));
+  const [kMax, setKMax] = useState(kActual + 3);
   const [intentosPorK, setIntentosPorK] = useState(10);
   const [resultados, setResultados] = useState(null);
   const [evaluando, setEvaluando] = useState(false);

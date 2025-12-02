@@ -215,7 +215,7 @@ function App() {
 
     console.log("Resultado Monte Carlo:", resultado);
 
-    // El algoritmo debe modificar grafo.nodos[i].color → refrescamos
+    
     actualizarGrafo();
 
     setResultado(resultado);
@@ -326,7 +326,7 @@ function App() {
 
       {resultado && (
         <div style={{ marginTop: "20px" }}>
-          <h2>Resultado Monte Carlo</h2>
+          <h2>Resultado {algoritmo}</h2>
           <p>Intentos: {resultado.intentos}</p>
           <p>Conflictos totales: {resultado.conflictosTotales}</p>
           <p>Grafos Validos: {resultado.grafosValidos}</p>
@@ -342,14 +342,14 @@ function App() {
       )}
 
       {/* === GRÁFICO DE LÍNEAS === */}
-      {resultado && resultado.evolucionConflictos && (
+      {resultado && resultado.evolucionConflictos && resultado.evolucionConflictos.length > 0 && (
         <GraficoConflictosCanvas datos={resultado.evolucionConflictos} />
       )}
 
       {/* === RECOLORACIÓN MANUAL CON PROBABILIDAD === */}
       {resultado && grafo && (
         <div className="recoloracion-container">
-          <h3 className="recoloracion-title">🎨 Recoloración Manual Inteligente</h3>
+          <h3 className="recoloracion-title"> Recoloración Manual Inteligente</h3>
 
           {/* MOSTRAR NODOS CONFLICTIVOS */}
           {(() => {
@@ -359,7 +359,7 @@ function App() {
             return (
               <div className={`estado-grafo ${totalConflictos > 0 ? 'con-conflictos' : 'sin-conflictos'}`}>
                 <h4>
-                  {totalConflictos > 0 ? "⚠️" : "✅"} 
+                  {totalConflictos > 0 ? "" : ""} 
                   Estado del Grafo: {totalConflictos} conflicto(s) total(es)
                 </h4>
                 
@@ -382,14 +382,14 @@ function App() {
                       ))}
                     </div>
                     <p className="hint-text">
-                      💡 Haz clic en un nodo para seleccionarlo y recolorearlo
+                       Haz clic en un nodo para seleccionarlo y recolorearlo
                     </p>
                   </div>
                 )}
                 
                 {nodosConflictivos.length === 0 && (
                   <p style={{ margin: "0", color: "#3dd16b", fontWeight: "600" }}>
-                    ✅ ¡Coloración válida! No hay conflictos en el grafo.
+                     ¡Coloración válida! No hay conflictos en el grafo.
                   </p>
                 )}
               </div>
