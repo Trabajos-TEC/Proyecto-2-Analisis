@@ -14,29 +14,27 @@ export function algoritmoMontecarlo(grafo, iteraciones = 1000) {
 
   grafos = []; // limpiar historial
 
-  // Agregamos recoloraciones y evolución ***
   let recoloraciones = 0;
   let evolucionConflictos = [];
 
-  const inicio = performance.now(); // Tiempo de inicio
+  const inicio = performance.now();
 
   for (let i = 0; i < iteraciones; i++) {
+    let coloresPrevios = crearCopiaGrafo(grafo).nodos.map(nodo => nodo.color);
 
-    // Asignar colores aleatorios
     grafo.asignarColoresAleatoriamente();
 
-    // CAMBIO 2: sumamos recoloraciones
-    recoloraciones += grafo.nodos.length;
+    grafo.nodos.forEach((nodo, j) => {
+      if (nodo.color !== coloresPrevios[j]) {
+        recoloraciones++;
+      }
+    });
 
-    // Contar conflictos
     let conflictosActuales = grafo.contarConflictos();
     conflictosTotales += conflictosActuales;
 
-    // Guardamos evolución
     evolucionConflictos.push(conflictosActuales);
 
-
-    // Verificar si es válido (cero conflictos)
     if (conflictosActuales === 0) {
       grafosValidos += 1;
     }
@@ -52,12 +50,10 @@ export function algoritmoMontecarlo(grafo, iteraciones = 1000) {
     conflictosTotales,
     grafos,
     grafosValidos,
-
-    // Devolvemos nuevas estadísticas ***
     recoloraciones,
     evolucionConflictos
-
   };
 }
 
 console.log(algoritmoMontecarlo(crearGrafoAleatorio(60,6),10000));
+

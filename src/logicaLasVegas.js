@@ -15,29 +15,28 @@ export function algoritmoLasVegas(grafo) {
 
   grafos = []; // limpiar historial
 
-  //agregamos recoloraciones y evolución ***
   let recoloraciones = 0;
   let evolucionConflictos = [];
 
-
-  const inicio = performance.now(); // Tiempo de inicio
+  const inicio = performance.now();
 
   while (true) {
     iteraciones += 1;
 
-    // Asignar colores aleatorios
+    let coloresPrevios = crearCopiaGrafo(grafo).nodos.map(nodo => nodo.color);
+
     grafo.asignarColoresAleatoriamente();
 
-    // sumamos recoloraciones
-    recoloraciones += grafo.nodos.length; // cada nodo recoloreado una vez
-  
-    // Contar conflictos
+    grafo.nodos.forEach((nodo, i) => {
+      if (nodo.color !== coloresPrevios[i]) {
+        recoloraciones++;
+      }
+    });
+
     let conflictosActuales = grafo.contarConflictos();
     conflictosTotales += conflictosActuales;
 
-    // registrar evolución
     evolucionConflictos.push(conflictosActuales);
-
 
     if (conflictosActuales === 0) {
       grafosValidos += 1;
@@ -54,11 +53,8 @@ export function algoritmoLasVegas(grafo) {
         conflictosTotales,
         grafos,
         grafosValidos,
-
-        // agregar nuevas estadísticas al return ***
         recoloraciones,
         evolucionConflictos
-        // ⬆⬆⬆
       };
     }
   }
