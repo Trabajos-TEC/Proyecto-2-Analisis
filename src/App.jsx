@@ -22,11 +22,11 @@ function App() {
   const [colorNuevo, setColorNuevo] = useState("");
   const [probabilidadInfo, setProbabilidadInfo] = useState(null);
   const [mostrarEvaluacionK, setMostrarEvaluacionK] = useState(false);
-  const [, forceUpdate] = useState(0);
+  const [updateKey, setUpdateKey] = useState(0);
 
   // Función para forzar re-render sin destruir el grafo
   const actualizarGrafo = () => {
-    forceUpdate(n => n + 1);
+    setUpdateKey(n => n + 1);
   };
 
   // === ADVERTIR REINICIO ===
@@ -320,7 +320,7 @@ function App() {
       {/* VISTA DEL GRAFO */}
       {grafo && (
         <div className="graph-area">
-          <GraphView grafo={grafo} onNodoClick={handleNodoClick} />
+          <GraphView key={updateKey} grafo={grafo} onNodoClick={handleNodoClick} />
         </div>
       )}
 
