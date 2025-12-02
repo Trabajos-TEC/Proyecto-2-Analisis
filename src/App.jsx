@@ -22,6 +22,12 @@ function App() {
   const [colorNuevo, setColorNuevo] = useState("");
   const [probabilidadInfo, setProbabilidadInfo] = useState(null);
   const [mostrarEvaluacionK, setMostrarEvaluacionK] = useState(false);
+  const [, forceUpdate] = useState(0);
+
+  // Función para forzar re-render sin destruir el grafo
+  const actualizarGrafo = () => {
+    forceUpdate(n => n + 1);
+  };
 
   // === ADVERTIR REINICIO ===
   const advertirReinicio = () => {
@@ -91,7 +97,7 @@ function App() {
         if (a !== b) {
           grafo.nodos[a].vecinos.push(grafo.nodos[b]);
           grafo.nodos[b].vecinos.push(grafo.nodos[a]);
-          setGrafo({ ...grafo }); // refrescar
+          actualizarGrafo();
         }
         return [];
       }
@@ -124,7 +130,7 @@ function App() {
     }
 
     grafo.nodos[num - 1].color = colorNuevo;
-    setGrafo({ ...grafo });
+    actualizarGrafo();
     setProbabilidadInfo(null);
   };
 
@@ -158,7 +164,7 @@ function App() {
     }
 
     const resultadoBusqueda = busquedaLocalGreedy(grafo, 100);
-    setGrafo({ ...grafo });
+    actualizarGrafo();
     
     alert(
       `Búsqueda Local Completada:\n\n` +
@@ -189,10 +195,10 @@ function App() {
 
     const resultado = algoritmoLasVegas(grafo);
 
-    console.log("Resultado Monte Carlo:", resultado);
+    console.log("Resultado Las Vegas:", resultado);
 
     // El algoritmo debe modificar grafo.nodos[i].color → refrescamos
-    setGrafo({ ...grafo });
+    actualizarGrafo();
 
     setResultado(resultado);
     setMostrarIteraciones(false);
@@ -210,7 +216,7 @@ function App() {
     console.log("Resultado Monte Carlo:", resultado);
 
     // El algoritmo debe modificar grafo.nodos[i].color → refrescamos
-    setGrafo({ ...grafo });
+    actualizarGrafo();
 
     setResultado(resultado);
     setMostrarIteraciones(false);
