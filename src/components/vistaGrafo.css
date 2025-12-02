@@ -1,6 +1,6 @@
 .graph-container {
-  width: 90vw;        /* se adapta al ancho de la pantalla */
-  height: 90vh;       /* se adapta al alto de la pantalla */
+  width: 80vw;        /* se adapta al ancho de la pantalla */
+  height: 80vh;       /* se adapta al alto de la pantalla */
 
   border: 2px solid #888;
   overflow: auto;     /* mantiene los scrolls */
