@@ -7,6 +7,7 @@ import { algoritmoLasVegas } from "./logicaLasVegas.js";
 import GraficoConflictosCanvas from "./components/graficoConflictosCanvas";
 import EvaluacionK from "./components/EvaluacionK.jsx";
 import { calcularProbabilidadRecoloracion, busquedaLocalGreedy } from "./busquedaLocal.js";
+import CustomAlert from "./components/customAlert.jsx";
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
   const [probabilidadInfo, setProbabilidadInfo] = useState(null);
   const [mostrarEvaluacionK, setMostrarEvaluacionK] = useState(false);
   const [updateKey, setUpdateKey] = useState(0);
+  const [alerta, setAlerta] = useState(null);
 
   // Función para forzar re-render sin destruir el grafo
   const actualizarGrafo = () => {
@@ -31,7 +33,7 @@ function App() {
 
   // === ADVERTIR REINICIO ===
   const advertirReinicio = () => {
-    alert("Debe reiniciar antes de iniciar una nueva ejecución.");
+    setAlerta("Debe reiniciar antes de iniciar una nueva ejecución.");
   };
 
   // === REINICIAR A ESTADO INICIAL ===
@@ -45,7 +47,7 @@ function App() {
     setProbabilidadInfo(null);
     setMostrarIteraciones(false);
     setMostrarEvaluacionK(false);
-    alert("La aplicación ha sido reiniciada.");
+    setAlerta("La aplicación ha sido reiniciada.");
   };
 
 
@@ -53,11 +55,11 @@ function App() {
   const handleCrearGrafoAleatorio = () => {
 
     if (nodos < 60) {
-      alert("Debe usar al menos 60 nodos.");
+      setAlerta("Debe usar al menos 60 nodos.");
       return;
     }
     if (nodos > 160) {
-      alert("El máximo permitido es 160 nodos.");
+      setAlerta("El máximo permitido es 160 nodos.");
       return;
     }
 
@@ -72,11 +74,11 @@ function App() {
   const handleCrearManual = () => {
 
     if (nodos < 60) {
-      alert("Debe usar al menos 60 nodos.");
+      setAlerta("El número mínimo de nodos es 60.");
       return;
     }
     if (nodos > 160) {
-      alert("El máximo permitido es 160 nodos.");
+      setAlerta("El número máximo de nodos es 160.");
       return;
     }
 
@@ -121,11 +123,11 @@ function App() {
     
     const num = Number(nodoARecolorear);
     if (isNaN(num) || num < 1 || num > grafo.nodos.length) {
-      alert("Número de nodo inválido.");
+      setAlerta("Número de nodo inválido.");
       return;
     }
     if (!colorNuevo) {
-      alert("Debe elegir un color.");
+      setAlerta("Debe elegir un color.");
       return;
     }
 
@@ -159,14 +161,14 @@ function App() {
   // === APLICAR BÚSQUEDA LOCAL ===
   const aplicarBusquedaLocal = () => {
     if (!grafo) {
-      alert("Debe generar un grafo primero.");
+      setAlerta("Debe generar un grafo primero.");
       return;
     }
 
     const resultadoBusqueda = busquedaLocalGreedy(grafo, 100);
     actualizarGrafo();
     
-    alert(
+    setAlerta(
       `Búsqueda Local Completada:\n\n` +
       `Éxito: ${resultadoBusqueda.exito ? "Sí" : "No"}\n` +
       `Iteraciones: ${resultadoBusqueda.iteraciones}\n` +
@@ -180,7 +182,12 @@ function App() {
   // === INICIAR SIMULACIÓN ===
   const handleIniciarSimulacion = () => {
     if (!grafo) {
-      alert("Debe generar un grafo primero.");
+      setAlerta("Debe generar un grafo primero.");
+      return;
+    }
+
+    if (grafo.verificarAislado()) {
+      setAlerta("El grafo contiene nodos aislados. Debe conectar todos los nodos antes de iniciar la simulación.");
       return;
     }
 
@@ -203,11 +210,12 @@ function App() {
     setResultado(resultado);
     setMostrarIteraciones(false);
   };
+
   // === EJECUTAR MONTE CARLO ===
   const ejecutarMonteCarlo = () => {
     const it = Number(iteraciones);
     if (isNaN(it) || it <= 0) {
-      alert("Ingrese un número válido de iteraciones.");
+      setAlerta("Ingrese un número válido de iteraciones.");
       return;
     }
 
@@ -246,14 +254,14 @@ function App() {
               const valor = Number(e.target.value);
 
               if (valor < 60) {
-                alert("El número mínimo de nodos es 60.");
+                setAlerta("El número mínimo de nodos es 60.");
                 setNodos(60);
               } else if (valor > 160) {
-                alert("El número máximo de nodos es 160.");
+                setAlerta("El número máximo de nodos es 160.");
                 setNodos(160);
               }
             }}
-            placeholder="Entre 60 y 160"
+            placeholder="Ej: 60"
             min={60}
             max={160}
           />
@@ -265,8 +273,19 @@ function App() {
             type="number"
             value={colores}
             onChange={(e) => setColores(e.target.value)}
+            onBlur={(e) => {
+              const valor = Number(e.target.value);
+              if (valor < 3) {
+                setAlerta("El número mínimo de colores es 3.");
+                setColores(3);
+              } else if (nodos && valor > Number(nodos)) {
+                setAlerta("El número máximo de colores es igual al número de nodos.");
+                setColores(Number(nodos));
+              }
+            }}
             placeholder="Ej: 5"
             min={3}
+            max={nodos || 160}
           />
         </div>
 
@@ -509,6 +528,12 @@ function App() {
           {mostrarEvaluacionK && <EvaluacionK grafo={grafo} />}
         </div>
       )}
+      {alerta && (
+        <CustomAlert 
+          message={alerta}
+          onClose={() => setAlerta(null)}
+        />
+    )}
 
     </div>
   );
