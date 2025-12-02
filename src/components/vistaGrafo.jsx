@@ -40,16 +40,18 @@ export default function GraphView({ grafo }) {
     if (!currentGrafo || !currentGrafo.nodos || currentGrafo.nodos.length === 0)
       return;
 
-    // Tamaño dinámico del nodo según cantidad de nodos
-    const minN = 60;
-    const maxN = 150;
+    const maxSize = 22;   // tamaño del nodo con pocos nodos
+    const minSize = 7;    // tamaño mínimo con muchos nodos
 
-    const maxSize = 22; 
-    const minSize = 8;
+    const N = currentGrafo.nodos.length;
 
-    let proporcion = (currentGrafo.nodos.length - minN) / (maxN - minN);
-    proporcion = Math.min(1, Math.max(0, proporcion)); // clamp 0..1
+    // límite superior del rango
+    const Nmax = 160; 
 
+    // proporción directa según cantidad de nodos
+    let proporcion = Math.min(1, N / Nmax);
+
+    // tamaño final del nodo
     const nodoRadio = maxSize - (maxSize - minSize) * proporcion;
 
 
@@ -63,7 +65,7 @@ export default function GraphView({ grafo }) {
         if (j > i) {
           ctx.beginPath();
 
-          // ★★★ NUEVO: detectar conflicto coloreo ★★★
+          // detectar conflicto coloreo 
           const mismoColor =
             nodo.color &&
             vecino.color &&
