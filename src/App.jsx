@@ -5,6 +5,8 @@ import GraphView from "./components/vistaGrafo.jsx";
 import { algoritmoMontecarlo } from "./logicaMonteCarlo.js";
 import { algoritmoLasVegas } from "./logicaLasVegas.js";
 import GraficoConflictosCanvas from "./components/graficoConflictosCanvas";
+import EvaluacionK from "./components/EvaluacionK.jsx";
+import { calcularProbabilidadRecoloracion, busquedaLocalGreedy } from "./busquedaLocal.js";
 
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
   const [resultado, setResultado] = useState(null);
   const [nodoARecolorear, setNodoARecolorear] = useState("");
   const [colorNuevo, setColorNuevo] = useState("");
+  const [probabilidadInfo, setProbabilidadInfo] = useState(null);
+  const [mostrarEvaluacionK, setMostrarEvaluacionK] = useState(false);
 
   // === ADVERTIR REINICIO ===
   const advertirReinicio = () => {
@@ -32,7 +36,9 @@ function App() {
     setSeleccion([]);
     setNodoARecolorear("");
     setColorNuevo("");
+    setProbabilidadInfo(null);
     setMostrarIteraciones(false);
+    setMostrarEvaluacionK(false);
     alert("La aplicación ha sido reiniciada.");
   };
 
@@ -93,22 +99,77 @@ function App() {
       return nuevaSel;
     });
   };
-const recolorearNodo = () => {
-  if (!grafo) return;
-  
-  const num = Number(nodoARecolorear);
-  if (isNaN(num) || num < 1 || num > grafo.nodos.length) {
-    alert("Número de nodo inválido.");
-    return;
-  }
-  if (!colorNuevo) {
-    alert("Debe elegir un color.");
-    return;
-  }
+  // === CALCULAR PROBABILIDAD AL CAMBIAR COLOR ===
+  const calcularProbabilidad = () => {
+    if (!grafo || !nodoARecolorear || !colorNuevo) return;
+    
+    const num = Number(nodoARecolorear);
+    if (isNaN(num) || num < 1 || num > grafo.nodos.length) return;
+    
+    const info = calcularProbabilidadRecoloracion(grafo, num - 1, colorNuevo);
+    setProbabilidadInfo(info);
+  };
 
-  grafo.nodos[num - 1].color = colorNuevo; // aplicar cambio
-  setGrafo({ ...grafo }); // refrescar
-};
+  const recolorearNodo = () => {
+    if (!grafo) return;
+    
+    const num = Number(nodoARecolorear);
+    if (isNaN(num) || num < 1 || num > grafo.nodos.length) {
+      alert("Número de nodo inválido.");
+      return;
+    }
+    if (!colorNuevo) {
+      alert("Debe elegir un color.");
+      return;
+    }
+
+    grafo.nodos[num - 1].color = colorNuevo;
+    setGrafo({ ...grafo });
+    setProbabilidadInfo(null);
+  };
+
+  // === IDENTIFICAR NODOS CONFLICTIVOS ===
+  const obtenerNodosConflictivos = () => {
+    if (!grafo) return [];
+    
+    const conflictivos = [];
+    for (let i = 0; i < grafo.nodos.length; i++) {
+      const nodo = grafo.nodos[i];
+      const numConflictos = nodo.vecinos.filter(v => v.color === nodo.color).length;
+      
+      if (numConflictos > 0) {
+        conflictivos.push({
+          valor: nodo.valor,
+          indice: i,
+          color: nodo.color,
+          conflictos: numConflictos
+        });
+      }
+    }
+    
+    return conflictivos.sort((a, b) => b.conflictos - a.conflictos);
+  };
+
+  // === APLICAR BÚSQUEDA LOCAL ===
+  const aplicarBusquedaLocal = () => {
+    if (!grafo) {
+      alert("Debe generar un grafo primero.");
+      return;
+    }
+
+    const resultadoBusqueda = busquedaLocalGreedy(grafo, 100);
+    setGrafo({ ...grafo });
+    
+    alert(
+      `Búsqueda Local Completada:\n\n` +
+      `Éxito: ${resultadoBusqueda.exito ? "Sí" : "No"}\n` +
+      `Iteraciones: ${resultadoBusqueda.iteraciones}\n` +
+      `Conflictos iniciales: ${resultadoBusqueda.conflictosIniciales}\n` +
+      `Conflictos finales: ${resultadoBusqueda.conflictosFinales}\n` +
+      `Mejora: ${resultadoBusqueda.mejora} conflictos (${resultadoBusqueda.porcentajeMejora}%)\n` +
+      `Tiempo: ${resultadoBusqueda.tiempoEjecucion} ms`
+    );
+  };
 
   // === INICIAR SIMULACIÓN ===
   const handleIniciarSimulacion = () => {
@@ -279,43 +340,169 @@ const recolorearNodo = () => {
         <GraficoConflictosCanvas datos={resultado.evolucionConflictos} />
       )}
 
+      {/* === RECOLORACIÓN MANUAL CON PROBABILIDAD === */}
       {resultado && grafo && (
-  <div style={{ marginTop: "20px", padding: "10px", border: "1px solid #ccc", borderRadius: "8px" }}>
-    <h3>Recolorear nodo manualmente</h3>
+        <div className="recoloracion-container">
+          <h3 className="recoloracion-title">🎨 Recoloración Manual Inteligente</h3>
 
-    <label>Número de nodo:</label>
-    <input
-      type="number"
-      value={nodoARecolorear}
-      onChange={(e) => setNodoARecolorear(e.target.value)}
-      placeholder="Ej: 1"
-      min={1}
-      max={grafo.nodos.length}
-      style={{ marginLeft: "10px", width: "80px" }}
-    />
+          {/* MOSTRAR NODOS CONFLICTIVOS */}
+          {(() => {
+            const nodosConflictivos = obtenerNodosConflictivos();
+            const totalConflictos = grafo.contarConflictos();
+            
+            return (
+              <div className={`estado-grafo ${totalConflictos > 0 ? 'con-conflictos' : 'sin-conflictos'}`}>
+                <h4>
+                  {totalConflictos > 0 ? "⚠️" : "✅"} 
+                  Estado del Grafo: {totalConflictos} conflicto(s) total(es)
+                </h4>
+                
+                {nodosConflictivos.length > 0 && (
+                  <div>
+                    <strong style={{ color: "#e9e9e9" }}>Nodos con conflictos ({nodosConflictivos.length}):</strong>
+                    <div className="nodos-conflictivos-grid">
+                      {nodosConflictivos.map((nodo) => (
+                        <button
+                          key={nodo.valor}
+                          onClick={() => {
+                            setNodoARecolorear(nodo.valor.toString());
+                            setProbabilidadInfo(null);
+                          }}
+                          className={`btn-nodo-conflictivo ${nodoARecolorear === nodo.valor.toString() ? 'selected' : ''}`}
+                          style={{ background: nodo.color }}
+                        >
+                          Nodo {nodo.valor} ({nodo.conflictos} conflicto{nodo.conflictos > 1 ? "s" : ""})
+                        </button>
+                      ))}
+                    </div>
+                    <p className="hint-text">
+                      💡 Haz clic en un nodo para seleccionarlo y recolorearlo
+                    </p>
+                  </div>
+                )}
+                
+                {nodosConflictivos.length === 0 && (
+                  <p style={{ margin: "0", color: "#3dd16b", fontWeight: "600" }}>
+                    ✅ ¡Coloración válida! No hay conflictos en el grafo.
+                  </p>
+                )}
+              </div>
+            );
+          })()}
 
-    <br /><br />
+          <div style={{ display: "flex", gap: "15px", alignItems: "flex-end", marginBottom: "15px" }}>
+            <div>
+              <label>Número de nodo:</label>
+              <input
+                type="number"
+                value={nodoARecolorear}
+                onChange={(e) => {
+                  setNodoARecolorear(e.target.value);
+                  setProbabilidadInfo(null);
+                }}
+                placeholder="Ej: 1"
+                min={1}
+                max={grafo.nodos.length}
+                style={{ marginLeft: "10px", width: "80px", padding: "5px" }}
+              />
+            </div>
 
-    <label>Color nuevo:</label>
-    <select
-      value={colorNuevo}
-      onChange={(e) => setColorNuevo(e.target.value)}
-      style={{ marginLeft: "10px" }}
-    >
-      <option value="">Seleccione color</option>
-      {grafo.listaColores.map((c, idx) => (
-        <option key={idx} value={c}>{c}</option>
-      ))}
-    </select>
+            <div>
+              <label>Color nuevo:</label>
+              <select
+                value={colorNuevo}
+                onChange={(e) => {
+                  setColorNuevo(e.target.value);
+                  setProbabilidadInfo(null);
+                }}
+                style={{ marginLeft: "10px", padding: "5px" }}
+              >
+                <option value="">Seleccione color</option>
+                {grafo.listaColores.map((c, idx) => (
+                  <option key={idx} value={c} style={{ background: c, color: "#fff" }}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-    <br /><br />
+            <button 
+              className="btn-calcular-probabilidad" 
+              onClick={calcularProbabilidad}
+            >
+              Calcular Probabilidad
+            </button>
 
-    <button className="btn-aplicar-recoloreo" onClick={recolorearNodo}>Aplicar</button>
-    <button className="btn-ejecutar-recoloreo" onClick={handleCrearManual}>
-            Ejecutar
-    </button>
-  </div>
-)}
+            <button 
+              className="btn-aplicar-recoloreo" 
+              onClick={recolorearNodo}
+            >
+              Aplicar Recoloración
+            </button>
+          </div>
+
+          {probabilidadInfo && (
+            <div className={`probabilidad-info ${probabilidadInfo.mejora ? 'mejora' : probabilidadInfo.empeora ? 'empeora' : 'neutro'}`}>
+              <h4> Análisis de Probabilidad</h4>
+              
+              <div className={`probabilidad-value ${probabilidadInfo.mejora ? 'mejora' : probabilidadInfo.empeora ? 'empeora' : 'neutro'}`}>
+                {probabilidadInfo.probabilidadExito}% de éxito
+              </div>
+
+              <div className="metricas-grid">
+                <div className="metrica-item">
+                  <strong>Conflictos actuales:</strong> {probabilidadInfo.conflictosAntes}
+                </div>
+                <div className="metrica-item">
+                  <strong>Conflictos si se aplica:</strong> {probabilidadInfo.conflictosDespues}
+                </div>
+                <div className="metrica-item">
+                  <strong>Cambio:</strong> 
+                  <span style={{ color: probabilidadInfo.mejora ? "#3dd16b" : probabilidadInfo.empeora ? "#ff7070" : "#999" }}>
+                    {probabilidadInfo.cambioConflictos > 0 ? "+" : ""}{probabilidadInfo.cambioConflictos}
+                    {probabilidadInfo.mejora ? " ✓ Mejora" : probabilidadInfo.empeora ? " ✗ Empeora" : " - Sin cambio"}
+                  </span>
+                </div>
+                <div className="metrica-item">
+                  <strong>Vecinos que necesitan recoloración:</strong> {probabilidadInfo.vecinosQueNecesitanRecoloreo}
+                </div>
+              </div>
+
+              {probabilidadInfo.vecinosConflictivos.length > 0 && (
+                <div className="vecinos-box">
+                  <strong>Nodos vecinos conflictivos:</strong> {probabilidadInfo.vecinosConflictivos.join(", ")}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="separador-busqueda">
+            <button 
+              className="btn-busqueda-local" 
+              onClick={aplicarBusquedaLocal}
+            >
+               Aplicar Búsqueda Local (Optimización Automática)
+            </button>
+            <p className="hint-text">
+              Utiliza algoritmo Greedy para encontrar la mejor coloración posible
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* === EVALUACIÓN DE K === */}
+      {grafo && (
+        <div className="evaluacion-k-container">
+          <button
+            onClick={() => setMostrarEvaluacionK(!mostrarEvaluacionK)}
+            className="btn-evaluacion-k"
+          >
+            {mostrarEvaluacionK ? "Ocultar" : "Mostrar"} Evaluación del Impacto de k
+          </button>
+          
+          {mostrarEvaluacionK && <EvaluacionK grafo={grafo} />}
+        </div>
+      )}
 
     </div>
   );
