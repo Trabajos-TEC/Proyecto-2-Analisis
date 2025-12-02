@@ -12,8 +12,8 @@ export default function GraphView({ grafo }) {
     const resizeCanvas = () => {
       const container = canvas.parentElement;
 
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
+      canvas.width = 6000;
+      canvas.height = 6000;
 
       recalcularPosiciones();
       drawAll(grafo);
@@ -132,11 +132,11 @@ function recalcularPosiciones() {
   }
 
   const canvas = canvasRef.current;
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
+  const centerX = canvas.width / 1.58;
+  const centerY = canvas.height / 1.45;
 
   // Ajusta radio para que quepa bien dentro del canvas
-  let radio = Math.min(canvas.width, canvas.height) / 3.0;
+  let radio = Math.min(canvas.width, canvas.height) / 10;
 
   if (grafo.nodos.length > 100) {
     radio *= 1.25;    // aumenta un 20% cuando hay muchos nodos
