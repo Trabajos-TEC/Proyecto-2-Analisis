@@ -12,8 +12,8 @@ export default function GraphView({ grafo }) {
     const resizeCanvas = () => {
       const container = canvas.parentElement;
 
-      canvas.width = container.clientWidth;
-      canvas.height = container.clientHeight;
+      canvas.width = 4500;
+      canvas.height = 4500;
 
       recalcularPosiciones();
       drawAll(grafo);
@@ -40,16 +40,18 @@ export default function GraphView({ grafo }) {
     if (!currentGrafo || !currentGrafo.nodos || currentGrafo.nodos.length === 0)
       return;
 
-    // Tamaño dinámico del nodo según cantidad de nodos
-    const minN = 60;
-    const maxN = 150;
+    const maxSize = 18;   // tamaño del nodo con pocos nodos
+    const minSize = 10;    // tamaño mínimo con muchos nodos
 
-    const maxSize = 22; 
-    const minSize = 8;
+    const N = currentGrafo.nodos.length;
 
-    let proporcion = (currentGrafo.nodos.length - minN) / (maxN - minN);
-    proporcion = Math.min(1, Math.max(0, proporcion)); // clamp 0..1
+    // límite superior del rango
+    const Nmax = 160; 
 
+    // proporción directa según cantidad de nodos
+    let proporcion = Math.min(1, N / Nmax);
+
+    // tamaño final del nodo
     const nodoRadio = maxSize - (maxSize - minSize) * proporcion;
 
 
@@ -63,7 +65,7 @@ export default function GraphView({ grafo }) {
         if (j > i) {
           ctx.beginPath();
 
-          // ★★★ NUEVO: detectar conflicto coloreo ★★★
+          // detectar conflicto coloreo 
           const mismoColor =
             nodo.color &&
             vecino.color &&
@@ -130,11 +132,19 @@ function recalcularPosiciones() {
   }
 
   const canvas = canvasRef.current;
-  const centerX = canvas.width / 2;
-  const centerY = canvas.height / 2;
+  const centerX = canvas.width / 1.58;
+  const centerY = canvas.height / 1.45;
 
   // Ajusta radio para que quepa bien dentro del canvas
-  const radio = Math.min(canvas.width, canvas.height) / 2.2;
+  let radio = Math.min(canvas.width, canvas.height) / 12;
+
+  if (grafo.nodos.length > 100) {
+    radio *= 1.25;    // aumenta un 20% cuando hay muchos nodos
+  }
+  if (grafo.nodos.length > 130) {
+    radio *= 1.50;   // aumenta un poco más si hay MUCHOS nodos
+  }
+
   const step = (2 * Math.PI) / grafo.nodos.length;
 
   const posiciones = grafo.nodos.map((_, i) => {

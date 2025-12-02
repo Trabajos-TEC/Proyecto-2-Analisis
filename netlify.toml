@@ -1,0 +1,33 @@
+# Configuración de Netlify para el proyecto de Coloración de Grafos
+
+[build]
+  # Comando para construir el proyecto
+  command = "npm run build"
+  
+  # Directorio que contiene los archivos construidos
+  publish = "dist"
+  
+  # Variables de entorno para el build
+  [build.environment]
+    NODE_VERSION = "20"
+
+# Reglas de redirección para SPA (Single Page Application)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers de seguridad
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Optimizaciones de caché
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
