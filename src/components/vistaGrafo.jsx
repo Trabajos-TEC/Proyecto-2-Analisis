@@ -41,7 +41,7 @@ export default function GraphView({ grafo }) {
       return;
 
     const maxSize = 22;   // tamaño del nodo con pocos nodos
-    const minSize = 7;    // tamaño mínimo con muchos nodos
+    const minSize = 4;    // tamaño mínimo con muchos nodos
 
     const N = currentGrafo.nodos.length;
 
