@@ -1,5 +1,5 @@
 // Nodo individual
-class Nodo {
+export class Nodo {
   constructor(valor) {
     this.valor = valor;
     this.vecinos = []; // lista de nodos conectados
@@ -9,7 +9,7 @@ class Nodo {
 }
 
 // Grafo
-class Grafo {
+export class Grafo {
   constructor() {
     this.nodos = [];
     this.k = null;
