@@ -136,7 +136,15 @@ function recalcularPosiciones() {
   const centerY = canvas.height / 2;
 
   // Ajusta radio para que quepa bien dentro del canvas
-  const radio = Math.min(canvas.width, canvas.height) / 3.0;
+  let radio = Math.min(canvas.width, canvas.height) / 3.0;
+
+  if (grafo.nodos.length > 100) {
+    radio *= 1.25;    // aumenta un 20% cuando hay muchos nodos
+  }
+  if (grafo.nodos.length > 130) {
+    radio *= 1.50;   // aumenta un poco más si hay MUCHOS nodos
+  }
+
   const step = (2 * Math.PI) / grafo.nodos.length;
 
   const posiciones = grafo.nodos.map((_, i) => {
