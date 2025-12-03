@@ -1,6 +1,16 @@
 import { useEffect, useRef } from "react";
 import "./vistaGrafo.css";
 
+/**
+ * Nombre: GraphView
+ * Descripción: Componente React que visualiza grafos utilizando Canvas API.
+ *              Renderiza nodos en disposición circular con sus conexiones (aristas).
+ *              Detecta y resalta conflictos de coloración (aristas rojas cuando nodos
+ *              adyacentes tienen el mismo color). Permite interacción mediante clicks
+ *              para crear aristas manualmente entre nodos.
+ * Entradas:
+ *   - grafo: Objeto Grafo a visualizar
+ */
 export default function GraphView({ grafo }) {
   const canvasRef = useRef(null);
 

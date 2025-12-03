@@ -3,6 +3,24 @@ import { crearGrafoAleatorio } from "./prototipo.js";
 
 let grafos = []; // Aquí se guardarán snapshots de cada intento
 
+/**
+ * Nombre: algoritmoLasVegas
+ * Descripción: Implementa el algoritmo probabilístico Las Vegas para coloración de grafos.
+ *              Ejecuta iteraciones indefinidas asignando colores aleatorios hasta encontrar
+ *              una coloración válida. Garantiza encontrar una solución correcta, pero el
+ *              tiempo de ejecución es variable y no está acotado.
+ * Entradas:
+ *   - grafo: Objeto Grafo a colorear
+ * Salidas:
+ *   - Objeto con estadísticas del algoritmo:
+ *     * intentos: Número de iteraciones necesarias para encontrar solución
+ *     * tiempoEjecucion: Tiempo en milisegundos hasta encontrar la solución
+ *     * porcentajeExito: Porcentaje de grafos válidos (siempre 100%)
+ *     * conflictosTotales: Suma de conflictos en todas las iteraciones
+ *     * grafosValidos: Cantidad de grafos sin conflictos (siempre 1)
+ *     * recoloraciones: Número total de nodos recoloreados
+ *     * evolucionConflictos: Array con el número de conflictos en cada iteración
+ */
 export function algoritmoLasVegas(grafo) {
   if (!grafo || grafo.nodos.length === 0) {
     console.error("El grafo está vacío o es inválido.");

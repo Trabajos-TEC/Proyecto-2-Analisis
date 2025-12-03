@@ -4,7 +4,14 @@ import { crearCopiaGrafo } from "../prototipo.js";
 import "./EvaluacionK.css";
 
 /**
- * Componente para evaluar el impacto del número de colores (k) en el grafo actual
+ * Nombre: EvaluacionK
+ * Descripción: Componente React que permite evaluar el impacto del número de colores (k)
+ *              en la capacidad de colorear un grafo. Ejecuta múltiples pruebas con diferentes
+ *              valores de k sobre la misma estructura de grafo y genera estadísticas comparativas
+ *              incluyendo tasa de éxito, tiempo promedio, conflictos e iteraciones.
+ *              Presenta los resultados en una tabla interactiva con insights automáticos.
+ * Entradas:
+ *   - grafo: Objeto Grafo sobre el cual realizar el análisis
  */
 export default function EvaluacionK({ grafo }) {
   // Inicializar valores basados en el k actual del grafo

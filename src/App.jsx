@@ -9,7 +9,14 @@ import EvaluacionK from "./components/EvaluacionK.jsx";
 import { calcularProbabilidadRecoloracion, busquedaLocalGreedy } from "./busquedaLocal.js";
 import CustomAlert from "./components/customAlert.jsx";
 
-
+/**
+ * Nombre: App
+ * Descripción: Componente principal de la aplicación de coloración de grafos.
+ *              Gestiona todo el estado de la aplicación, incluyendo la creación de grafos,
+ *              ejecución de algoritmos probabilísticos (Monte Carlo y Las Vegas),
+ *              recoloración manual inteligente, búsqueda local, y evaluación del impacto de k.
+ *              Proporciona la interfaz de usuario completa con validaciones y notificaciones.
+ */
 function App() {
   const [algoritmo, setAlgoritmo] = useState("Monte Carlo");
   const [nodos, setNodos] = useState("");
@@ -256,14 +263,14 @@ function App() {
               if (valor < 60) {
                 setAlerta("El número mínimo de nodos es 60.");
                 setNodos(60);
-              } else if (valor > 160) {
-                setAlerta("El número máximo de nodos es 160.");
-                setNodos(160);
+              } else if (valor > 120) {
+                setAlerta("El número máximo de nodos es 120.");
+                setNodos(120);
               }
             }}
             placeholder="Ej: 60"
             min={60}
-            max={160}
+            max={120}
           />
         </div>
 
@@ -283,9 +290,9 @@ function App() {
                 setColores(Number(nodos));
               }
             }}
-            placeholder="Ej: 5"
+            placeholder="Ej: 3"
             min={3}
-            max={nodos || 160}
+            max={nodos || 120}
           />
         </div>
 
@@ -324,13 +331,30 @@ function App() {
       {mostrarIteraciones && (
         <div className="iteraciones-box">
           <label>Iteraciones:</label>
-          <input
-            type="number"
-            value={iteraciones}
-            onChange={(e) => setIteraciones(e.target.value)}
-            placeholder="Ej: 1000"
-            min={1}
-          />
+            <input
+              type="number"
+              value={iteraciones}
+              onChange={(e) => {
+                const value = Number(e.target.value);
+
+                // Permite limpiar el input
+                if (e.target.value === "") {
+                  setIteraciones("");
+                  return;
+                }
+
+                if (value < 1000) {
+                  alert("El número mínimo de iteraciones es 1000.");
+                  return; 
+                }
+
+                setIteraciones(value);
+              }}
+              placeholder="Ej: 1000"
+              min={1000}
+            />
+
+          
           <button className="btn-ejecutar-montecarlo" onClick={ejecutarMonteCarlo}> Ejecutar </button>
         </div>
       )}

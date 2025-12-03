@@ -1,4 +1,12 @@
-// Nodo individual
+
+/**
+ * Nombre: Nodo
+ * Descripción: Clase que representa un nodo individual en el grafo.
+ *              Cada nodo tiene un valor identificador, una lista de nodos vecinos (adyacentes),
+ *              un color asignado para la coloración, y un flag que indica si debe ser recoloreado.
+ * Entradas:
+ *   - valor: Identificador único del nodo
+ */
 export class Nodo {
   constructor(valor) {
     this.valor = valor;
@@ -8,7 +16,12 @@ export class Nodo {
   }
 }
 
-// Grafo
+/**
+ * Nombre: Grafo
+ * Descripción: Clase que representa un grafo no dirigido.
+ *              Contiene una lista de nodos, el número de colores permitidos (k),
+ *              la lista de colores disponibles, y métodos para manipular y validar la coloración.
+ */
 export class Grafo {
   constructor() {
     this.nodos = [];
@@ -20,10 +33,22 @@ export class Grafo {
 
   }
 
+  /**
+   * Nombre: asignarK
+   * Descripción: Asigna el número de colores (k) permitidos para colorear el grafo.
+   * Entradas:
+   *   - n: Número entero que representa la cantidad de colores disponibles
+   */
   asignarK(n){
     this.k = n;
   }
 
+  /**
+   * Nombre: asignarColoresAleatoriamente
+   * Descripción: Asigna colores aleatorios a todos los nodos del grafo que no tienen
+   *              el flag 'recolorear' activado. Los colores se seleccionan aleatoriamente
+   *              de la lista de colores disponibles.
+   */
   asignarColoresAleatoriamente(){
     for (let i = 0; i < this.nodos.length ; i++){
       let nodo = this.nodos[i]
@@ -33,6 +58,14 @@ export class Grafo {
     }
   }
 
+  /**
+   * Nombre: agregarNodo
+   * Descripción: Crea un nuevo nodo con el valor especificado y lo agrega al grafo.
+   * Entradas:
+   *   - valor: Identificador único del nodo
+   * Salidas:
+   *   - Retorna el nodo creado
+   */
   agregarNodo(valor) {
     const nodo = new Nodo(valor);
     this.nodos.push(nodo);
@@ -40,6 +73,11 @@ export class Grafo {
     return nodo;
   }
 
+  /**
+   * Nombre: agregarColores
+   * Descripción: Genera una lista de k colores aleatorios en formato hexadecimal
+   *              para ser utilizados en la coloración del grafo.
+   */
   agregarColores(){
     this.listaColores = [];
     for (let i = 0; i < this.k ; i++){
@@ -48,11 +86,24 @@ export class Grafo {
     }
   }
 
+  /**
+   * Nombre: agregarArista
+   * Descripción: Crea una conexión bidireccional entre dos nodos (arista no dirigida).
+   * Entradas:
+   *   - nodo1: Primer nodo de la arista
+   *   - nodo2: Segundo nodo de la arista
+   */
   agregarArista(nodo1, nodo2) {
     nodo1.vecinos.push(nodo2);
     nodo2.vecinos.push(nodo1);
   }
 
+  /**
+   * Nombre: verificarAislado
+   * Descripción: Verifica si existe al menos un nodo aislado (sin vecinos) en el grafo.
+   * Salidas:
+   *   - Retorna true si hay al menos un nodo sin vecinos, false en caso contrario
+   */
   verificarAislado(){
     for (let i = 0; i < this.nodos.length; i++){
         if (this.nodos[i].vecinos.length === 0){
@@ -65,7 +116,14 @@ export class Grafo {
   verificarCompleto(){
   }
 
-  
+  /**
+   * Nombre: contarConflictos
+   * Descripción: Cuenta el número total de conflictos en el grafo.
+   *              Un conflicto ocurre cuando dos nodos adyacentes tienen el mismo color.
+   *              Utiliza un Set para evitar contar la misma arista conflictiva dos veces.
+   * Salidas:
+   *   - Retorna el número de conflictos encontrados (aristas con nodos del mismo color)
+   */
   contarConflictos() {
     this.conflictos = 0;
     let setConflictos = new Set();
@@ -91,7 +149,13 @@ export class Grafo {
     return this.conflictos;
   }
 
-
+  /**
+   * Nombre: verificarColoreo
+   * Descripción: Verifica si la coloración actual del grafo es válida.
+   *              Una coloración es válida si ningún par de nodos adyacentes tiene el mismo color.
+   * Salidas:
+   *   - Retorna true si la coloración es válida, false si existe al menos un conflicto
+   */
   verificarColoreo(){
     for (let i = 0; i < this.nodos.length; i++){
       let nodoSeleccionado = this.nodos[i];
@@ -107,11 +171,29 @@ export class Grafo {
 
 }
 
-
+/**
+ * Nombre: random
+ * Descripción: Genera un número entero aleatorio en el rango especificado (inclusivo).
+ * Entradas:
+ *   - min: Valor mínimo del rango
+ *   - max: Valor máximo del rango
+ * Salidas:
+ *   - Retorna un número entero aleatorio entre min y max (ambos incluidos)
+ */
 function random(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+/**
+ * Nombre: verificarExistenciaArista
+ * Descripción: Verifica si ya existe una arista entre dos nodos específicos en una lista de conexiones.
+ * Entradas:
+ *   - nodo1: Primer nodo a verificar
+ *   - nodo2: Segundo nodo a verificar
+ *   - lista: Lista de aristas existentes (array de pares de nodos)
+ * Salidas:
+ *   - Retorna true si la arista ya existe, false en caso contrario
+ */
 function verificarExistenciaArista(nodo1,nodo2,lista){
   for (let i = 0; i < lista.length ; i++){
     if (lista[i][0].valor === nodo1.valor && lista[i][1].valor === nodo2.valor){
@@ -125,8 +207,17 @@ function verificarExistenciaArista(nodo1,nodo2,lista){
   return false;
 }
 
-
-
+/**
+ * Nombre: crearGrafoManual
+ * Descripción: Crea un grafo con un número específico de nodos sin conexiones.
+ *              Las aristas deben ser agregadas manualmente por el usuario.
+ *              Genera automáticamente k colores aleatorios para el grafo.
+ * Entradas:
+ *   - cantidadNodos: Número de nodos a crear en el grafo
+ *   - kColores: Número de colores disponibles para colorear el grafo
+ * Salidas:
+ *   - Retorna un objeto Grafo con los nodos creados sin aristas
+ */
 export function crearGrafoManual(cantidadNodos,kColores,){
   const grafo = new Grafo();
   // Creamos las instancias de nodos
@@ -143,7 +234,17 @@ export function crearGrafoManual(cantidadNodos,kColores,){
   return grafo;
 }
 
-
+/**
+ * Nombre: crearGrafoAleatorio
+ * Descripción: Crea un grafo aleatorio con el número especificado de nodos.
+ *              Genera conexiones aleatorias entre nodos asegurando que no haya nodos aislados.
+ *              Evita la creación de aristas duplicadas y auto-conexiones.
+ * Entradas:
+ *   - cantidadNodos: Número de nodos a crear en el grafo
+ *   - kColores: Número de colores disponibles para colorear el grafo
+ * Salidas:
+ *   - Retorna un objeto Grafo con nodos conectados aleatoriamente
+ */
 export function crearGrafoAleatorio(cantidadNodos,kColores,){
   const grafo = new Grafo();
   // Creamos las instancias de nodos
@@ -178,6 +279,16 @@ export function crearGrafoAleatorio(cantidadNodos,kColores,){
   return grafo;
 }
 
+/**
+ * Nombre: crearCopiaGrafo
+ * Descripción: Crea una copia profunda del grafo preservando su estructura, nodos, aristas y colores.
+ *              IMPORTANTE: Esta función preserva los métodos de las clases Grafo y Nodo,
+ *              a diferencia del operador spread (...) que solo copia propiedades.
+ * Entradas:
+ *   - grafo: Objeto Grafo a copiar
+ * Salidas:
+ *   - Retorna un nuevo objeto Grafo con la misma estructura y datos que el original
+ */
 export function crearCopiaGrafo(grafo) {
     let copia = new Grafo();
 

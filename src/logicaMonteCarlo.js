@@ -3,6 +3,25 @@ import { crearCopiaGrafo } from "./prototipo.js";
 
 let grafos = []; // Aquí se guardarán snapshots de cada intento
 
+/**
+ * Nombre: algoritmoMontecarlo
+ * Descripción: Implementa el algoritmo probabilístico Monte Carlo para coloración de grafos.
+ *              Ejecuta un número limitado de iteraciones asignando colores aleatorios
+ *              en cada intento. No garantiza encontrar una solución válida, pero proporciona
+ *              estadísticas sobre la probabilidad de éxito y el comportamiento del algoritmo.
+ * Entradas:
+ *   - grafo: Objeto Grafo a colorear
+ *   - iteraciones: Número máximo de intentos de coloración (por defecto 1000)
+ * Salidas:
+ *   - Objeto con estadísticas del algoritmo:
+ *     * intentos: Número de iteraciones ejecutadas
+ *     * tiempoEjecucion: Tiempo en milisegundos
+ *     * porcentajeExito: Porcentaje de coloraciones válidas encontradas
+ *     * conflictosTotales: Suma de conflictos en todas las iteraciones
+ *     * grafosValidos: Cantidad de grafos sin conflictos encontrados
+ *     * recoloraciones: Número total de nodos recoloreados
+ *     * evolucionConflictos: Array con el número de conflictos en cada iteración
+ */
 export function algoritmoMontecarlo(grafo, iteraciones = 1000) {
   if (!grafo || grafo.nodos.length === 0) {
     console.error("El grafo está vacío o es inválido.");

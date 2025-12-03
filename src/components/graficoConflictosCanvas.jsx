@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 
+/**
+ * Nombre: GraficoConflictosCanvas
+ * Descripción: Componente React que visualiza la evolución de conflictos a lo largo
+ *              de las iteraciones de un algoritmo de coloración.
+ * Entradas:
+ *   - datos: Array de números representando conflictos por iteración
+ */
 export default function GraficoConflictosCanvas({ datos }) {
   const canvasRef = useRef(null);
   const [zoom, setZoom] = useState(1);

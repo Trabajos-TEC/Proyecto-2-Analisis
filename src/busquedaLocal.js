@@ -4,11 +4,25 @@
  */
 
 /**
- * Calcula la probabilidad estimada de éxito tras recolorear un nodo
- * @param {Grafo} grafo - El grafo actual
- * @param {number} indiceNodo - Índice del nodo a analizar
- * @param {string} nuevoColor - Color que se aplicará
- * @returns {Object} - Información sobre la probabilidad y análisis
+ * Nombre: calcularProbabilidadRecoloracion
+ * Descripción: Calcula la probabilidad estimada de éxito al recolorear un nodo específico.
+ *              Simula el cambio de color y analiza el impacto en los conflictos del grafo.
+ *              Considera factores como: reducción de conflictos, vecinos afectados, y
+ *              disponibilidad de colores vs grado del nodo.
+ * Entradas:
+ *   - grafo: Objeto Grafo sobre el cual realizar el análisis
+ *   - indiceNodo: Índice del nodo a analizar (0-based)
+ *   - nuevoColor: Color en formato hexadecimal que se aplicaría al nodo
+ * Salidas:
+ *   - Objeto con información detallada:
+ *     * probabilidadExito: Porcentaje estimado de éxito (0-100)
+ *     * conflictosAntes: Número de conflictos antes del cambio
+ *     * conflictosDespues: Número de conflictos después del cambio simulado
+ *     * cambioConflictos: Diferencia de conflictos (positivo = mejora)
+ *     * vecinosQueNecesitanRecoloreo: Cantidad de vecinos afectados
+ *     * vecinosConflictivos: Array con valores de nodos vecinos conflictivos
+ *     * mejora: Boolean indicando si reduce conflictos
+ *     * empeora: Boolean indicando si aumenta conflictos
  */
 export function calcularProbabilidadRecoloracion(grafo, indiceNodo, nuevoColor) {
   if (!grafo || indiceNodo < 0 || indiceNodo >= grafo.nodos.length) {
@@ -33,9 +47,7 @@ export function calcularProbabilidadRecoloracion(grafo, indiceNodo, nuevoColor) 
   const vecinosQueNecesitanRecoloreo = vecinosConflictivos.length;
   
   // Calcular probabilidad basada en:
-  // 1. Reducción de conflictos
-  // 2. Número de colores disponibles vs vecinos
-  // 3. Grado del nodo
+  // 1. Reducción de conflictos, 2. Número de colores disponibles vs vecinos, 3. Grado del nodo
   
   const reduccionConflictos = conflictosAntes - conflictosDespues;
   const gradoNodo = nodo.vecinos.length;
@@ -71,9 +83,20 @@ export function calcularProbabilidadRecoloracion(grafo, indiceNodo, nuevoColor) 
 }
 
 /**
- * Identifica nodos conflictivos en el grafo
- * @param {Grafo} grafo - El grafo a analizar
- * @returns {Array} - Lista de nodos con conflictos
+ * Nombre: identificarNodosConflictivos
+ * Descripción: Identifica todos los nodos del grafo que tienen al menos un conflicto
+ *              (vecinos con el mismo color). Los ordena por número de conflictos
+ *              en orden descendente para priorizar los más problemáticos.
+ * Entradas:
+ *   - grafo: Objeto Grafo a analizar
+ * Salidas:
+ *   - Array de objetos con información de nodos conflictivos:
+ *     * indice: Posición del nodo en el array de nodos del grafo
+ *     * valor: Identificador del nodo
+ *     * color: Color actual del nodo
+ *     * numeroConflictos: Cantidad de vecinos con el mismo color
+ *     * grado: Número total de vecinos del nodo
+ *     (Ordenado de mayor a menor por numeroConflictos)
  */
 export function identificarNodosConflictivos(grafo) {
   const nodosConflictivos = [];
@@ -100,10 +123,19 @@ export function identificarNodosConflictivos(grafo) {
 }
 
 /**
- * Encuentra el mejor color para un nodo dado
- * @param {Grafo} grafo - El grafo
- * @param {number} indiceNodo - Índice del nodo
- * @returns {Object} - Mejor color y análisis
+ * Nombre: encontrarMejorColor
+ * Descripción: Evalúa todos los colores disponibles para un nodo específico y determina
+ *              cuál genera la menor cantidad de conflictos. Prueba cada color de la
+ *              paleta del grafo y cuenta los conflictos resultantes.
+ * Entradas:
+ *   - grafo: Objeto Grafo
+ *   - indiceNodo: Índice del nodo a evaluar
+ * Salidas:
+ *   - Objeto con análisis completo:
+ *     * mejorColor: Color que minimiza los conflictos
+ *     * conflictosConMejorColor: Número de conflictos con ese color
+ *     * colorOriginal: Color previo del nodo
+ *     * analisisColores: Array con análisis de cada color disponible
  */
 export function encontrarMejorColor(grafo, indiceNodo) {
   const nodo = grafo.nodos[indiceNodo];
@@ -152,11 +184,25 @@ function contarConflictosNodo(grafo, indiceNodo) {
 }
 
 /**
- * Estrategia de búsqueda local: Recoloración Greedy
- * Recolorea nodos conflictivos de forma iterativa hasta resolver conflictos
- * @param {Grafo} grafo - El grafo a optimizar
- * @param {number} maxIteraciones - Máximo de iteraciones
- * @returns {Object} - Resultado de la búsqueda local
+ * Nombre: busquedaLocalGreedy
+ * Descripción: Implementa una estrategia de búsqueda local voraz (greedy) para optimizar
+ *              la coloración del grafo. En cada iteración, identifica el nodo con más
+ *              conflictos y le asigna el mejor color posible. Repite hasta resolver
+ *              todos los conflictos o alcanzar el límite de iteraciones.
+ * Entradas:
+ *   - grafo: Objeto Grafo a optimizar (se modifica directamente)
+ *   - maxIteraciones: Número máximo de iteraciones permitidas (por defecto 100)
+ * Salidas:
+ *   - Objeto con resultados del proceso:
+ *     * exito: Boolean indicando si se eliminaron todos los conflictos
+ *     * iteraciones: Número de iteraciones ejecutadas
+ *     * conflictosIniciales: Conflictos al inicio del algoritmo
+ *     * conflictosFinales: Conflictos al terminar el algoritmo
+ *     * mejora: Reducción absoluta de conflictos
+ *     * porcentajeMejora: Porcentaje de mejora respecto a conflictos iniciales
+ *     * tiempoEjecucion: Tiempo en milisegundos
+ *     * historialConflictos: Array con conflictos en cada iteración
+ *     * recoloraciones: Array detallado de cada cambio de color realizado
  */
 export function busquedaLocalGreedy(grafo, maxIteraciones = 100) {
   const inicio = performance.now();
@@ -208,11 +254,26 @@ export function busquedaLocalGreedy(grafo, maxIteraciones = 100) {
 }
 
 /**
- * Estrategia de búsqueda local: Hill Climbing
- * Explora recoloraciones vecinas y se mueve hacia la mejor opción
- * @param {Grafo} grafo - El grafo a optimizar
- * @param {number} maxIteraciones - Máximo de iteraciones
- * @returns {Object} - Resultado de la búsqueda
+ * Nombre: busquedaLocalHillClimbing
+ * Descripción: Implementa el algoritmo de escalada de colinas (Hill Climbing) para
+ *              optimización de coloración. Explora ampliamenete todas las posibles
+ *              recoloraciones en cada iteración y elige la que produce la mayor mejora.
+ *              Se detiene cuando no encuentra mejoras o alcanza el límite de iteraciones.
+ * Entradas:
+ *   - grafo: Objeto Grafo a optimizar (se modifica directamente)
+ *   - maxIteraciones: Número máximo de iteraciones permitidas (por defecto 100)
+ * Salidas:
+ *   - Objeto con resultados del proceso:
+ *     * exito: Boolean indicando si se eliminaron todos los conflictos
+ *     * iteraciones: Número de iteraciones ejecutadas
+ *     * conflictosIniciales: Conflictos al inicio del algoritmo
+ *     * conflictosFinales: Conflictos al terminar el algoritmo
+ *     * mejora: Reducción absoluta de conflictos
+ *     * porcentajeMejora: Porcentaje de mejora respecto a conflictos iniciales
+ *     * tiempoEjecucion: Tiempo en milisegundos
+ *     * historialConflictos: Array con conflictos en cada iteración
+ *     * recoloraciones: Array detallado de cada cambio de color realizado
+ *     * razonParada: Motivo por el cual terminó el algoritmo
  */
 export function busquedaLocalHillClimbing(grafo, maxIteraciones = 100) {
   const inicio = performance.now();
@@ -292,13 +353,24 @@ export function busquedaLocalHillClimbing(grafo, maxIteraciones = 100) {
 }
 
 /**
- * Evalúa el impacto del número de colores (k) en el rendimiento
- * @param {Function} crearGrafoFn - Función para crear grafo
- * @param {number} nodos - Número de nodos
- * @param {number} kMin - Mínimo número de colores
- * @param {number} kMax - Máximo número de colores
- * @param {number} muestras - Número de muestras por k
- * @returns {Array} - Análisis comparativo
+ * Nombre: evaluarImpactoK
+ * Descripción: Realiza un análisis comparativo del impacto del número de colores (k)
+ *              en el rendimiento del algoritmo de búsqueda local. Para cada valor de k
+ *              en el rango especificado, ejecuta múltiples muestras y calcula estadísticas
+ *              promedio sobre tasa de éxito, tiempo de ejecución y conflictos.
+ * Entradas:
+ *   - crearGrafoFn: Función que crea un grafo (ej: crearGrafoAleatorio)
+ *   - nodos: Número de nodos para los grafos de prueba
+ *   - kMin: Valor mínimo de k a evaluar
+ *   - kMax: Valor máximo de k a evaluar
+ *   - muestras: Número de ejecuciones por cada valor de k (por defecto 5)
+ * Salidas:
+ *   - Array de objetos con estadísticas por cada valor de k:
+ *     * k: Número de colores evaluado
+ *     * tasaExito: Porcentaje de éxito promedio
+ *     * tiempoPromedio: Tiempo de ejecución promedio en ms
+ *     * conflictosPromedio: Conflictos finales promedio
+ *     * iteracionesPromedio: Iteraciones promedio necesarias
  */
 export function evaluarImpactoK(crearGrafoFn, nodos, kMin, kMax, muestras = 5) {
   const resultados = [];
