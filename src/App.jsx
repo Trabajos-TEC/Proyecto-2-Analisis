@@ -335,24 +335,21 @@ function App() {
               type="number"
               value={iteraciones}
               onChange={(e) => {
-                const value = Number(e.target.value);
+                const value = e.target.value;
 
                 // Permite limpiar el input
-                if (e.target.value === "") {
-                  setIteraciones("");
-                  return;
-                }
-
-                if (value < 1000) {
-                  alert("El número mínimo de iteraciones es 1000.");
-                  return; 
-                }
-
                 setIteraciones(value);
+              }}
+              onBlur={() => {
+                if (iteraciones !== "" && Number(iteraciones) < 1000) {
+                  alert("El número mínimo de iteraciones es 1000.");
+                  setIteraciones(1000); 
+                }
               }}
               placeholder="Ej: 1000"
               min={1000}
             />
+
 
           
           <button className="btn-ejecutar-montecarlo" onClick={ejecutarMonteCarlo}> Ejecutar </button>
