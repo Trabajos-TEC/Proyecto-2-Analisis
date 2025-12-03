@@ -113,8 +113,6 @@ export class Grafo {
     return false;
   }
 
-  verificarCompleto(){
-  }
 
   /**
    * Nombre: contarConflictos
@@ -234,6 +232,22 @@ export function crearGrafoManual(cantidadNodos,kColores,){
   return grafo;
 }
 
+
+function contarAristasDeNodo(nodo, listaConexiones) {
+  let contador = 0;
+
+  for (let i = 0; i < listaConexiones.length; i++) {
+    const [a, b] = listaConexiones[i];
+
+    if (a === nodo || b === nodo) {
+      contador++;
+    }
+  }
+
+  return contador;
+}
+
+
 /**
  * Nombre: crearGrafoAleatorio
  * Descripción: Crea un grafo aleatorio con el número especificado de nodos.
@@ -245,39 +259,52 @@ export function crearGrafoManual(cantidadNodos,kColores,){
  * Salidas:
  *   - Retorna un objeto Grafo con nodos conectados aleatoriamente
  */
-export function crearGrafoAleatorio(cantidadNodos,kColores,){
+export function crearGrafoAleatorio(cantidadNodos, kColores) {
   const grafo = new Grafo();
+
   // Creamos las instancias de nodos
-  for (let i = 1; i < cantidadNodos + 1; i++){
+  for (let i = 1; i < cantidadNodos + 1; i++) {
     grafo.agregarNodo(i);
   }
+
   // Generamos los colores
   grafo.asignarK(kColores);
   grafo.agregarColores();
 
-  // Creamos las conneciones entre nodos (aristas)
-  let listaConexiones = []
+  // Creamos las conexiones entre nodos (aristas)
+  let listaConexiones = [];
 
-  while (grafo.verificarAislado()){
-    for(let i = 0; i < grafo.nodos.length ; i++){
-      let nodo1 = grafo.nodos[i]
-      let nodo2 = grafo.nodos[random(0,grafo.largo - 1)]
+  while (grafo.verificarAislado()) {
+    for (let i = 0; i < grafo.nodos.length; i++) {
+      let nodo1 = grafo.nodos[i];
+      let nodo2 = grafo.nodos[random(0, grafo.largo - 1)];
 
       // Validamos que los nodos escogidos no sean los mismos
-      // Validamos que no exista ya una conexion entre esos mismos dos nodos.
-      if (nodo1 != nodo2 && verificarExistenciaArista(nodo1,nodo2,listaConexiones) === false){
-   
-          grafo.agregarArista(nodo1,nodo2);
-          let conexion = [nodo1,nodo2]
-          listaConexiones.push(conexion)
-      }
+      // y que no exista ya una conexión entre esos mismos dos nodos.
+      const yaExiste = verificarExistenciaArista(nodo1, nodo2, listaConexiones);
 
-    } 
+      // Contamos cuántas aristas tiene cada nodo
+      const aristasNodo1 = contarAristasDeNodo(nodo1, listaConexiones);
+      const aristasNodo2 = contarAristasDeNodo(nodo2, listaConexiones);
+
+      if (
+        nodo1 !== nodo2 &&
+        yaExiste === false &&
+        aristasNodo1 < 2 &&     
+        aristasNodo2 < 2        
+      ) {
+        grafo.agregarArista(nodo1, nodo2);
+        let conexion = [nodo1, nodo2];
+        listaConexiones.push(conexion);
+      }
+    }
   }
-  console.log("Grafo creado con exito!")
+
+  console.log("Grafo creado con exito!");
 
   return grafo;
 }
+
 
 /**
  * Nombre: crearCopiaGrafo
